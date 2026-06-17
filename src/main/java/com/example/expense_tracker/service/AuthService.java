@@ -14,12 +14,12 @@ public class AuthService {
     @Autowired
     private JwtService jwtService;
 
-    // 🔐 Register
+    // Register
     public User register(User user) {
         return userRepository.save(user);
     }
 
-    // 🔐 Login
+    // Login
     public String login(String username, String password) {
 
         User user = userRepository.findByUsername(username)

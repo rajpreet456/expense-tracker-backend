@@ -17,7 +17,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    // 🔐 Generate Token
+    // Generate Token
     public String generateToken(String username) {
 
         return Jwts.builder()
@@ -28,12 +28,12 @@ public class JwtService {
                 .compact();
     }
 
-    // 🔍 Extract Username
+    // Extract Username
     public String extractUsername(String token) {
         return extractClaims(token).getSubject();
     }
 
-    // 🔍 Extract Claims
+    // Extract Claims
     private Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith(getKey())

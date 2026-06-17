@@ -36,14 +36,14 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = null;
         String token = null;
 
-        // 1️⃣ Check header exists
+        // Check header exists
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             token = authHeader.substring(7); // remove "Bearer "
             username = jwtService.extractUsername(token);
         }
 
-        // 2️⃣ If username found and not already authenticated
+        // If username found and not already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             userRepository.findByUsername(username).ifPresent(user -> {
@@ -63,7 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
             });
         }
 
-        // 3️⃣ Continue request
+        // Continue request
         filterChain.doFilter(request, response);
     }
 }

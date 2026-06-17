@@ -1,6 +1,7 @@
 package com.example.expense_tracker.controller;
 
 import com.example.expense_tracker.entity.Expense;
+import com.example.expense_tracker.repository.ExpenseRepository;
 import com.example.expense_tracker.service.ExpenseService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,10 @@ public class ExpenseController {
     @Autowired
     private ExpenseService expenseService;
 
-    // ➕ Add Expense (WITH validation)
+    @Autowired
+    public ExpenseRepository expenseRepository;
+
+    //Add Expense (WITH validation)
     @PostMapping
     public Expense addExpense(@RequestBody Expense expense) {
 
@@ -31,44 +35,48 @@ public class ExpenseController {
         return expenseService.addExpense(expense, username);
     }
 
-    // 📄 Get Expenses
+    // Get Expenses
     @GetMapping
     public Page<Expense> getExpenses(
             @RequestParam(required = false) String category,
             @RequestParam int page,
             @RequestParam int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir,
             Principal principal) {
 
         return expenseService.getUserExpenses(
                 principal.getName(),
                 category,
                 page,
-                size
+                size,
+                sortBy,
+                sortDir
         );
     }
 
-    // ✏️ Update Expense
-    @PutMapping("/{id}")
-    public Expense updateExpense(@PathVariable Long id,
-                                 @RequestBody Expense expense) {
+//Update Expense
+@PutMapping("/{id}")
+public Expense updateExpense(@PathVariable Long id,
+                             @RequestBody Expense expense) {
 
-        String username = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+    String username = SecurityContextHolder
+            .getContext()
+            .getAuthentication()
+            .getName();
 
-        return expenseService.updateExpense(id, expense, username);
-    }
-    @DeleteMapping("/{id}")
-    public String deleteExpense(@PathVariable Long id) {
+    return expenseService.updateExpense(id, expense, username);
+}
+@DeleteMapping("/{id}")
+public String deleteExpense(@PathVariable Long id) {
 
-        String username = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
+    String username = SecurityContextHolder
+            .getContext()
+            .getAuthentication()
+            .getName();
 
-        expenseService.deleteExpense(id, username);
+    expenseService.deleteExpense(id, username);
 
-        return "Expense deleted successfully";
-    }
+    return "Expense deleted successfully";
+}
 }

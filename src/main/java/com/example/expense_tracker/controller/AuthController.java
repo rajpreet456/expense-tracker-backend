@@ -14,13 +14,13 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    // 🔐 Register API
+    // Register API
     @PostMapping("/register")
     public User register(@RequestBody User user) {
         return authService.register(user);
     }
 
-    // 🔐 Login API
+    // Login API
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody User user) {
 
