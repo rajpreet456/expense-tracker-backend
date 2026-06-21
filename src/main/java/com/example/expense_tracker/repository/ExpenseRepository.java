@@ -13,6 +13,9 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     Page<Expense> findByUser(User user, Pageable pageable);
     Page<Expense> findByUserAndCategory(User user, String category, Pageable pageable);
+    Page<Expense> findByUserUsername(String username, Pageable pageable);
+
+    Page<Expense> findByUserUsernameAndCategory(String username, String category, Pageable pageable);
 
     @Query("SELECT SUM(e.amount) FROM Expense e WHERE e.user = :user")
     Double getTotalExpensesByUser(User user);

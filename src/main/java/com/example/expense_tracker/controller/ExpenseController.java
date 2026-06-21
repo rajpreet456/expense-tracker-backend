@@ -1,5 +1,6 @@
 package com.example.expense_tracker.controller;
 
+import com.example.expense_tracker.dto.ExpenseDTO;
 import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.repository.ExpenseRepository;
 import com.example.expense_tracker.service.ExpenseService;
@@ -38,7 +39,7 @@ public class ExpenseController {
 
     // Get Expenses
     @GetMapping
-    public Page<Expense> getExpenses(
+    public Page<ExpenseDTO> getExpenses(
             @RequestParam(required = false) String category,
             @RequestParam int page,
             @RequestParam int size,

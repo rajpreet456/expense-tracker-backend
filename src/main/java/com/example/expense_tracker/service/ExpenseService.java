@@ -1,5 +1,6 @@
 package com.example.expense_tracker.service;
 
+import com.example.expense_tracker.dto.ExpenseDTO;
 import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.entity.User;
 import com.example.expense_tracker.repository.ExpenseRepository;
@@ -27,6 +28,17 @@ public class ExpenseService {
     @Autowired
     private UserRepository userRepository;
 
+    //converting entity -> dto
+    private ExpenseDTO convertToDTO(Expense expense) {
+        ExpenseDTO dto = new ExpenseDTO();
+        dto.setId(expense.getId());
+        dto.setTitle(expense.getTitle());
+        dto.setAmount(expense.getAmount());
+        dto.setCategory(expense.getCategory());
+        dto.setDate(expense.getDate().toString());
+        return dto;
+    }
+
     // ADD EXPENSE
     public Expense addExpense(Expense expense, String username) {
 
@@ -39,7 +51,7 @@ public class ExpenseService {
     }
 
     // GET EXPENSES WITH PAGINATION
-    public Page<Expense> getUserExpenses(
+    public Page<ExpenseDTO> getUserExpenses(
             String username,
             String category,
             int page,
@@ -47,23 +59,27 @@ public class ExpenseService {
             String sortBy,
             String sortDir) {
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                sortDir.equalsIgnoreCase("asc") ?
+                        Sort.by(sortBy).ascending() :
+                        Sort.by(sortBy).descending()
+        );
 
-        //Step 1 Create Sort object
-        Sort sort = sortDir.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        Page<Expense> expenses;
 
-        //Step 2 Combine with pagination
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        // 🔥 Step 3: Apply filtering if needed
         if (category != null) {
-            return expenseRepository.findByUserAndCategory(user, category, pageable);
+            expenses = expenseRepository.findByUserUsernameAndCategory(
+                    username, category, pageable);
+        } else {
+            expenses = expenseRepository.findByUserUsername(
+                    username, pageable);
         }
 
-        return expenseRepository.findByUser(user, pageable);
+        // 🔥 CONVERT PAGE<Expense> → PAGE<ExpenseDTO>
+        return expenses.map(this::convertToDTO);
+
     }
     //UPDATE EXPENSE
     public Expense updateExpense(Long id, Expense updatedExpense, String username) {
