@@ -1,6 +1,7 @@
 package com.example.expense_tracker.service;
 
 import com.example.expense_tracker.dto.ExpenseDTO;
+import com.example.expense_tracker.dto.ExpenseRequestDTO;
 import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.entity.User;
 import com.example.expense_tracker.repository.ExpenseRepository;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,14 +42,27 @@ public class ExpenseService {
     }
 
     // ADD EXPENSE
-    public Expense addExpense(Expense expense, String username) {
+    public ExpenseDTO addExpense(ExpenseRequestDTO dto, String username) {
 
+        // 1. Create entity
+        Expense expense = new Expense();
+
+        expense.setTitle(dto.getTitle());
+        expense.setAmount(dto.getAmount());
+        expense.setCategory(dto.getCategory());
+        expense.setDate(LocalDate.parse(dto.getDate()));
+
+        // 2. Attach user
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         expense.setUser(user);
 
-        return expenseRepository.save(expense);
+        // 3. Save to DB
+        Expense saved = expenseRepository.save(expense);
+
+        // 4. Convert to DTO
+        return convertToDTO(saved);
     }
 
     // GET EXPENSES WITH PAGINATION
@@ -77,27 +92,26 @@ public class ExpenseService {
                     username, pageable);
         }
 
-        // 🔥 CONVERT PAGE<Expense> → PAGE<ExpenseDTO>
+        //  CONVERT PAGE<Expense> → PAGE<ExpenseDTO>
         return expenses.map(this::convertToDTO);
 
     }
     //UPDATE EXPENSE
-    public Expense updateExpense(Long id, Expense updatedExpense, String username) {
+    public ExpenseDTO updateExpense(Long id, ExpenseRequestDTO dto, String username) {
 
-        Expense existingExpense = expenseRepository.findById(id)
+        Expense expense = expenseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Expense not found"));
 
-        //  Ownership check
-        if (!existingExpense.getUser().getUsername().equals(username)) {
-            throw new RuntimeException("You are not allowed to update this expense");
+        if (!expense.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("Not allowed");
         }
 
-        existingExpense.setTitle(updatedExpense.getTitle());
-        existingExpense.setAmount(updatedExpense.getAmount());
-        existingExpense.setCategory(updatedExpense.getCategory());
-        existingExpense.setDate(updatedExpense.getDate());
+        expense.setTitle(dto.getTitle());
+        expense.setAmount(dto.getAmount());
+        expense.setCategory(dto.getCategory());
+        expense.setDate(LocalDate.parse(dto.getDate()));
 
-        return expenseRepository.save(existingExpense);
+        return convertToDTO(expenseRepository.save(expense));
     }
 
     // DELETE EXPENSE

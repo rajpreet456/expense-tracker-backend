@@ -1,6 +1,7 @@
 package com.example.expense_tracker.controller;
 
 import com.example.expense_tracker.dto.ExpenseDTO;
+import com.example.expense_tracker.dto.ExpenseRequestDTO;
 import com.example.expense_tracker.entity.Expense;
 import com.example.expense_tracker.repository.ExpenseRepository;
 import com.example.expense_tracker.service.ExpenseService;
@@ -27,14 +28,8 @@ public class ExpenseController {
 
     //Add Expense (WITH validation)
     @PostMapping
-    public Expense addExpense(@RequestBody Expense expense) {
-
-        String username = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        return expenseService.addExpense(expense, username);
+    public ExpenseDTO addExpense(@RequestBody ExpenseRequestDTO dto, Principal principal) {
+        return expenseService.addExpense(dto, principal.getName());
     }
 
     // Get Expenses
@@ -59,15 +54,12 @@ public class ExpenseController {
 
 //Update Expense
 @PutMapping("/{id}")
-public Expense updateExpense(@PathVariable Long id,
-                             @RequestBody Expense expense) {
+public ExpenseDTO updateExpense(
+        @PathVariable Long id,
+        @RequestBody ExpenseRequestDTO dto,
+        Principal principal) {
 
-    String username = SecurityContextHolder
-            .getContext()
-            .getAuthentication()
-            .getName();
-
-    return expenseService.updateExpense(id, expense, username);
+    return expenseService.updateExpense(id, dto, principal.getName());
 }
 @DeleteMapping("/{id}")
 public String deleteExpense(@PathVariable Long id) {
