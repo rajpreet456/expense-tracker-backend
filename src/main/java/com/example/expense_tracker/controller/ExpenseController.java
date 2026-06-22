@@ -28,7 +28,10 @@ public class ExpenseController {
 
     //Add Expense (WITH validation)
     @PostMapping
-    public ExpenseDTO addExpense(@RequestBody ExpenseRequestDTO dto, Principal principal) {
+    public ExpenseDTO addExpense(
+            @Valid @RequestBody ExpenseRequestDTO dto,
+            Principal principal) {
+
         return expenseService.addExpense(dto, principal.getName());
     }
 
@@ -56,7 +59,7 @@ public class ExpenseController {
 @PutMapping("/{id}")
 public ExpenseDTO updateExpense(
         @PathVariable Long id,
-        @RequestBody ExpenseRequestDTO dto,
+        @Valid @RequestBody ExpenseRequestDTO dto,
         Principal principal) {
 
     return expenseService.updateExpense(id, dto, principal.getName());
