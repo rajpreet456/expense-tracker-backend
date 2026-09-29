@@ -57,6 +57,7 @@ public class ExpenseService {
 
         return convertToDTO(expenseRepository.save(expense));
     }
+
     public ExpenseDTO getExpenseById(Long id, String username) {
 
         Expense expense = expenseRepository.findById(id)
@@ -163,18 +164,23 @@ public class ExpenseService {
 
     // MONTHLY
     public List<Map<String, Object>> getMonthlyExpenses(String username) {
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         List<Object[]> results = expenseRepository.getMonthlyExpenses(user);
-
         List<Map<String, Object>> response = new ArrayList<>();
 
         for (Object[] row : results) {
+            Integer year = (Integer) row[0];
+            Integer month = (Integer) row[1];
+            Double total = (Double) row[2];
+
+            // Format to "YYYY-MM" (e.g., 2026-09)
+            String formattedMonth = String.format("%d-%02d", year, month);
+
             Map<String, Object> map = new HashMap<>();
-            map.put("month", row[0]);
-            map.put("total", row[1]);
+            map.put("month", formattedMonth);
+            map.put("total", total);
             response.add(map);
         }
 
